@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Get, Param, NotFoundException, Res, Query } from '@nestjs/common';
 import { FileService } from './file.service';
 import * as path from 'path';
@@ -29,7 +30,7 @@ export class FileController {
     @Param('filename') filename: string,
     @Res() res: Response,
   ) {
-    const directoryPath = path.join('C:/Users/MUGF001N/Documents/diccionarios', folderName);
+    const directoryPath = path.join('C:\\Users\\jonat\\Desktop\\Nueva carpeta\\diccionarios', folderName);
     const filePath = path.join(directoryPath, filename);
 
     if (fs.existsSync(filePath)) {
@@ -45,5 +46,27 @@ export class FileController {
     }
   }
 
+
+  // Endpoint para obtener los datos de la columna 'descripcion del campo' para una tabla específica
+  @Get('search/:folderName/:fileName/:tableName')
+  async searchDescriptionField(
+    @Param('folderName') folderName: string,
+    @Param('fileName') fileName: string,
+    @Param('tableName') tableName: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const descriptionFields = await this.fileService.getDescriptionFieldForTable(folderName, fileName, tableName);
+      
+      if (descriptionFields.length === 0) {
+        return res.status(404).send({ message: 'No se encontraron campos para la tabla especificada' });
+      }
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.send(descriptionFields);
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  }
   
 }
